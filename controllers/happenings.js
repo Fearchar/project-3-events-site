@@ -103,7 +103,6 @@ function attendRoute(req, res, next) {
 }
 
 function unattendRoute (req, res, next) {
-  console.log()
   req.currentUser.happenings.pull(req.params.id)
   req.currentUser.save()
   Happening.findById(req.params.id)
