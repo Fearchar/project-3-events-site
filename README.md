@@ -160,7 +160,7 @@ function commentDeleteRoute(req, res, next) {
 Along with these six routes, two additional non-CRUD routes to allow users to attend and unattend events, associating and dissociating their user document with the Happening document.
 
 *Unattend Controller*
-```
+```JavaScript
 function unattendRoute (req, res, next) {
   console.log()
   req.currentUser.happenings.pull(req.params.id)
