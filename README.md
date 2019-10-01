@@ -6,6 +6,8 @@ Happening is an events site which allows users to browse events by category, vie
 
 To visit the site, please click [here](https://happening-sei42.herokuapp.com/#/).
 
+![Happening](https://i.imgur.com/aH3xdR4.png)
+
 ## The Project Brief
 
 In groups of four, create a full stack website over a week, using React and a fully RESTful API created with Node.js and Express.
@@ -81,6 +83,9 @@ render() {
     </div>
   )
 ```
+*Happening Show page*
+![Happening Show](https://i.imgur.com/cQLM7dg.png)
+![Happening Show](https://i.imgur.com/V14pxLF.png)
 
 ### Backend
 
