@@ -26,7 +26,7 @@ In groups of four, create a full stack website over a week, using React and a fu
 
 I’m going to use Happenings as case study for the work I did on the site, picking out key element which are good examples of our approach or that I think may be interesting.
 
-### Frontend
+### Frontend ###
 
 #### The Happenings Show Page
 
@@ -91,7 +91,7 @@ render() {
 
 ![Happening Show](https://i.imgur.com/V14pxLF.png)
 
-### Backend
+### Backend ###
 
 #### Happening Models
 
