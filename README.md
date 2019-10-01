@@ -84,10 +84,10 @@ render() {
     </div>
   )
 ```
-*Happening Show page (1)*
+*Happening Show Page (1)*
 ![Happening Show](https://i.imgur.com/cQLM7dg.png)
 
-*Happening Show page (2)*
+*Happening Show Page (2)*
 ![Happening Show](https://i.imgur.com/V14pxLF.png)
 
 ### Backend
