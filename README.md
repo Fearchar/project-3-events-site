@@ -82,39 +82,115 @@ render() {
   )
 ```
 
-Backend
+### Backend
 
-Happening Models
+#### Happening Models
 
 The happening model consists of the main Happening schema, the comments schema, and a function to ensure that the postcode provided by the user is valid. Notable features of the model include the attendees and comments array fields which make it possible to attached and remove users and comments from events, and field validation messages created using the ‘required’ option.
 
-Insert comments & happening schema
+*Comment and Happening Schema*
+```JavaScript
+const commentSchema = new mongoose.Schema({
+  content: {type: String, required: 'Please provide {PATH}', maxlength: [450, 'Comment exceeds maximum (450). Please enter a shorter comment.']},
+  user: { type: mongoose.Schema.ObjectId, ref: 'User', required: true }
+}, {
+  timestamps: true
+})
+
+const happeningSchema = new mongoose.Schema({
+  name: { type: String, required: 'Please provide a {PATH}' },
+  city: { type: String, required: 'Please provide a {PATH}' },
+  postcode: { type: String, required: 'Please provide a {PATH}' },
+  lat: { type: Number, required: true },
+  lon: { type: Number, required: true },
+  time: { type: Number},
+  description: { type: String, required: 'Please provide a {PATH}' },
+  photo: { type: String, required: 'Please provide a {PATH}' },
+  venue: { type: String, required: 'Please provide a {PATH}' },
+  attendees: { type: [mongoose.Schema.ObjectId] , ref: 'User' },
+  attendance_count: { type: Number },
+  event_hosts: { type: [ String ] },
+  comments: { type: [ commentSchema ], required: false },
+  user: { type: mongoose.Schema.ObjectId, ref: 'User' },
+  categories: { type: [ String ], required: 'Please provide a {PATH}'}
+})
+```
 
 The code for the postcode validation runs before the normal model validation to ensure that only events with valid postcodes are saved. An axios request is made to the postcodes.io API, which returns a latitude and longitude for valid UK postcodes. Having the lattitude and longitude then allows us to place the event on a map on the frontend.
 
-Insert prevalidation code
+*Postcode Prevalidation*
+```JavaScript
+happeningSchema.pre('validate', function getGeolocation(done) {
+  if(!this.isModified('postcode')) return done()
 
-Routes and Controllers
+  axios.post('https://postcodes.io/postcodes?filter=longitude,latitude', { postcodes: [this.postcode] })
+    .then((res) => {
+      if(!res.data.result[0].result) return done()
+      const { latitude, longitude } = res.data.result[0].result
+      this.lat = latitude
+      this.lon = longitude
+      done()
+    })
+})
+```
+
+#### Routes and Controllers
 
 Happening uses RESTful routes for creating, reading, updating and deleting (CRUD) Happenings, and has additional routes for creating and deleting comments. These are fed through to the relevant controllers which manage the API requests, return documents from the database and respond to the client, populating data from related records where necessary.
 
-Insert comment delete route
+*Comment Delete Controller*
+```JavaScript
+function commentDeleteRoute(req, res, next) {
+  Happening.findById(req.params.id)
+    .then(happening => {
+      if(!happening) return res.sendStatus(404)
+      const comment = happening.comments.id(req.params.commentId)
+      if(!comment) return res.sendStatus(404)
+      comment.remove()
+      return happening.save()
+    })
+    .then(happening => Happening.populate(happening, { path: 'user', select: 'name' }))
+    .then(happening => Happening.populate(happening, { path: 'comments.user', modal: 'User', select: 'name' }))
+    .then(happening => Happening.populate(happening, { path: 'attendees', model: 'User', select: 'name photo'}))
+    .then(happening => res.json(happening))
+    .catch(next)
+}
+```
 
 Along with these six routes, two additional non-CRUD routes to allow users to attend and unattend events, associating and dissociating their user document with the Happening document.
 
-Secure Routes
+*Unattend Controller*
+```
+function unattendRoute (req, res, next) {
+  console.log()
+  req.currentUser.happenings.pull(req.params.id)
+  req.currentUser.save()
+  Happening.findById(req.params.id)
+    .then(happening => {
+      happening.attendees.pull(req.currentUser)
+      return happening.save()
+    })
+    .then(happening => Happening.populate(happening, { path: 'user', select: 'name' }))
+    .then(happening => Happening.populate(happening, { path: 'comments.user', modal: 'User', select: 'name' }))
+    .then(happening => Happening.populate(happening, { path: 'attendees', model: 'User', select: 'name photo'}))
+    .then(happening => res.json(happening))
+    .catch(next)
+}
+```
+
+#### Secure Routes
 
 To ensure that some routes, for example those for creating and updating Happenings, could only be accessed by registered users, secure routes were created using middleware which to verify user credentials, using a token saved in the clients local storage.
 
-Testing
+### Testing
 
 Tests were used early in the project to ensure requests were returning what we expected. However, during the course of the project changes were made to models and controllers and, due to time constraints, we were unable to update the tests to match within the given time.
 
-Future Features and Changes
+## Future Features and Changes
 
 Given more time on the project, I would change and add the following:
 
-Fix / update server side tests
-Make the other attendees box on the Happening show clickable, and bring up a modal showing all Happening attendees
-Styled create and edit Happening pages which are in a similar shape and format to the Happening show
-Improve responsive behaviour of the Home and About pages
+* Fix / update server side tests
+* Make the other attendees box on the Happening show clickable, and bring up a modal * showing all Happening attendees
+* Styled create and edit Happening pages which are in a similar shape and format to the Happening show
+* Improve responsive behaviour of the Home and About pages
