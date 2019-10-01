@@ -32,6 +32,7 @@ I’m going to use Happenings as case study for the work I did on the site, pick
 
 The HappeningShow classical component forms the page’s exoskeleton, structuring and wrapping around the functional components which create each of the individual elements seen on the page, and manages all of logical machinery which makes the page work, making server requests and managing which elements are shown on the page when.
 
+*The Render Method From The HappeningShow Component*
 ```jsx
 render() {
   console.log(this.state)
